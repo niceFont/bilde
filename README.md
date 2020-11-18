@@ -1,0 +1,1 @@
+Small project leveraging the OCR library tesseract.js to extract text from images and using Chromes Filesystem API to export them.
