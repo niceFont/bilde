@@ -4,7 +4,6 @@ import {
   Container,
   Heading,
   Button,
-  Text,
   Flex,
   Box,
   Alert,
@@ -14,6 +13,7 @@ import {
   Select,
   Progress,
 } from '@chakra-ui/react';
+import AutoTextArea from '../components/AutoTextArea';
 import ocr from '../worker';
 import LANGUAGE_MAP from '../worker/languages';
 import TextExport from '../components/TextExport';
@@ -24,7 +24,7 @@ const Index = () => {
   const [lang, setLang] = React.useState<string>('eng');
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | undefined | null>();
-  const [text, setText] = React.useState<string>('');
+  const [text, setText] = React.useState<string | undefined>();
   const [workerState, setWorkerState] = React.useState<Notification>();
 
   const handleUpload = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +34,6 @@ const Index = () => {
   };
   const notifier = Notifier.getNotifier();
   notifier.subscribe('Index', (notification : Notification) => {
-    console.log(notification);
     setWorkerState(notification);
   });
 
@@ -64,7 +63,7 @@ const Index = () => {
         </Alert>
       )}
       <Box display="flex" justifyContent="center">
-        <Heading marginBottom="40px">ReactOCR - Image Recognition</Heading>
+        <Heading marginBottom="40px">Extract Text from an Image</Heading>
       </Box>
       <Flex justify="center" alignItems="center">
         <Box>
@@ -72,7 +71,7 @@ const Index = () => {
         </Box>
         <Box>
           <Select value={lang} onChange={handleLangChange}>
-            {Object.entries(LANGUAGE_MAP).map(([name, ident]) => (
+            {Object.entries(LANGUAGE_MAP).sort().map(([name, ident]) => (
               <option key={ident} value={ident}>{name}</option>
             ))}
           </Select>
@@ -100,17 +99,20 @@ const Index = () => {
           </Heading>
         </Box>
       )}
-      {text && (
+      {typeof text !== 'undefined'
+      && (
         <Box marginTop="100px">
           <Flex alignItems="center" justify="space-between">
             <Heading as="h6" size="lg">Output:</Heading>
-            <TextExport text={text} />
+            <TextExport text={text || ''} />
           </Flex>
           <Divider />
           <Box padding="1rem">
-            <Text>
-              {text}
-            </Text>
+            <AutoTextArea
+              resize="none"
+              onChange={(e : React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value || '')}
+              value={text}
+            />
           </Box>
         </Box>
       )}

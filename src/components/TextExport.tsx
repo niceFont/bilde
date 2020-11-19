@@ -2,6 +2,7 @@ import {
   Box, Button, Select, Flex,
 } from '@chakra-ui/react';
 import * as React from 'react';
+import pdf from '../worker/pdf';
 
 export interface TextExporterProps {
   text: string
@@ -9,15 +10,30 @@ export interface TextExporterProps {
 
 const extensions = ['pdf', 'csv', 'txt'];
 
-const TextExporter : React.FunctionComponent<TextExporterProps> = ({ text }) => {
-  const [fileType, setFileType] = React.useState<string>('txt');
+enum FileExtension {
+  PDF = 'pdf',
+  TXT = 'txt',
+  CSV = 'csv'
+}
+const writeFile = async (type: FileExtension, handler : unknown, text : string) => {
+  // @ts-ignore
+  const writable = await handler.createWritable();
+  switch (type) {
+    case FileExtension.TXT:
+      await writable.write(text);
+      break;
+    case FileExtension.PDF:
+      await pdf(writable, text);
+      break;
+    default:
+      break;
+  }
+  await writable.close();
+};
 
-  const writeFile = async (handler : unknown) => {
-    // @ts-ignore
-    const writable = await handler.createWritable();
-    await writable.write(text);
-    await writable.close();
-  };
+const TextExporter : React.FunctionComponent<TextExporterProps> = ({ text }) => {
+  const [fileType, setFileType] = React.useState<FileExtension>(FileExtension.TXT);
+
   const openFileSaver = async () => {
     const options = {
       types: [
@@ -36,11 +52,11 @@ const TextExporter : React.FunctionComponent<TextExporterProps> = ({ text }) => 
       fileHandler = await window.chooseFileSystemEntries(options);
     }
 
-    writeFile(fileHandler);
+    writeFile(fileType, fileHandler, text);
   };
 
   const handleFileTypeChange = (e : React.ChangeEvent<HTMLSelectElement>) => {
-    setFileType(e.target.value);
+    setFileType(e.target.value as FileExtension);
   };
   return (
     <Box>

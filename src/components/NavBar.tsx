@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  Flex, Heading,
+  Flex, Heading, Link,
 } from '@chakra-ui/react';
 
 export interface NavBarProps {
@@ -8,10 +8,11 @@ export interface NavBarProps {
 }
 
 const NavBar = () => (
-  <Flex color="white" padding="1.2rem" bg="teal.500" as="nav" align="center">
+  <Flex justifyContent="space-between" color="white" padding="1.2rem" bg="teal.500" as="nav" align="center">
     <Heading as="h1" size="lg">
-      ReactOCR
+      Bilde
     </Heading>
+    <Link target="_blank" href="https://github.com/niceFont">Github</Link>
   </Flex>
 );
 
